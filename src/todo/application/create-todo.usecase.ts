@@ -1,6 +1,13 @@
 import type { CreateTodoInput, TodoResponse } from './dto/create-todo.dto.js'
-import { insertTodo } from '../infrastructure/todo.repository.js'
 
-export async function createTodo(input: CreateTodoInput): Promise<TodoResponse> {
-  return await insertTodo(input)
+export function createTodo(input: CreateTodoInput): TodoResponse {
+  // モック（後続PRでインフラ層のリポジトリに置き換え）
+  const now = new Date().toISOString()
+  return {
+    id: 1,
+    title: input.title,
+    completed: false,
+    createdAt: now,
+    updatedAt: now,
+  }
 }
