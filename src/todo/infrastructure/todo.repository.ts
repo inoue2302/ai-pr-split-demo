@@ -16,3 +16,19 @@ export async function insertTodo(input: CreateTodoInput): Promise<TodoResponse> 
     updatedAt: todo.updatedAt.toISOString(),
   }
 }
+
+export async function findTodoByTitle(title: string): Promise<TodoResponse | null> {
+  const todo = await prisma.todo.findFirst({
+    where: { title },
+  })
+
+  if (!todo) return null
+
+  return {
+    id: todo.id,
+    title: todo.title,
+    completed: todo.completed,
+    createdAt: todo.createdAt.toISOString(),
+    updatedAt: todo.updatedAt.toISOString(),
+  }
+}
