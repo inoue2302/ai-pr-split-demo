@@ -1,6 +1,6 @@
 import { Hono } from 'hono'
-import { createTodoSchema } from '../usecase/dto/create-todo.dto.js'
-import { createTodo } from '../usecase/create-todo.usecase.js'
+import { createTodoSchema } from '../application/dto/create-todo.dto.js'
+import { createTodo } from '../application/create-todo.usecase.js'
 
 const todoRoute = new Hono()
 
