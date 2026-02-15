@@ -1,4 +1,4 @@
-import type { CreateTodoInput, TodoResponse } from '../dto/create-todo.dto.js'
+import type { CreateTodoInput, TodoResponse } from './dto/create-todo.dto.js'
 
 export function createTodo(input: CreateTodoInput): TodoResponse {
   // モック（後続PRでインフラ層のリポジトリに置き換え）
