@@ -1,8 +1,9 @@
 import { Hono } from 'hono'
-import { todoApp } from './routes/todos.js'
 
 const app = new Hono()
 
-app.route('/api/todos', todoApp)
+app.get('/', (c) => {
+  return c.text('Hello World')
+})
 
 export { app }
