@@ -12,7 +12,7 @@ todoRoute.post('/', async (c) => {
     return c.json({ errors: parsed.error.flatten().fieldErrors }, 400)
   }
 
-  const todo = createTodo(parsed.data)
+  const todo = await createTodo(parsed.data)
   return c.json(todo, 201)
 })
 
