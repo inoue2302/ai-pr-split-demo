@@ -70,7 +70,7 @@ gh api repos/{owner}/{repo}/pulls/{number}/reviews \
     {
       "path": "src/example.ts",
       "position": 10,
-      "body": "**[must/logic]** 指摘内容\n\n💡 改善提案"
+      "body": "> [!CAUTION]\n> **[must/logic]** 指摘内容\n>\n> 💡 改善提案"
     }
   ]
 }
@@ -79,19 +79,33 @@ EOF
 
 #### コメントのフォーマット
 
-各インラインコメントは以下の形式にしてください:
+各インラインコメントは GitHub Alerts 記法を先頭に付け、以下の形式にしてください:
 
+**must の場合:**
 ```
-**[{severity}/{category}]** {message}
+> [!CAUTION]
+> **[must/{category}]** {message}
+>
+> 💡 {suggestion}
+```
 
-💡 {suggestion}
+**imo の場合:**
+```
+> [!WARNING]
+> **[imo/{category}]** {message}
+>
+> 💡 {suggestion}
+```
+
+**nits の場合:**
+```
+> [!NOTE]
+> **[nits/{category}]** {message}
+>
+> 💡 {suggestion}
 ```
 
 - suggestion がない場合は💡行を省略
-- severity に応じたプレフィックス:
-  - must: `🚨 **[must/{category}]**`
-  - imo: `⚠️ **[imo/{category}]**`
-  - nits: `💬 **[nits/{category}]**`
 
 #### event の選択
 
