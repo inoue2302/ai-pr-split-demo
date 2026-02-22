@@ -27,7 +27,7 @@ model: sonnet
     {
       "file": "ファイルパス",
       "line": 行番号,
-      "severity": "critical | warning | nit",
+      "severity": "must | imo | nits",
       "message": "指摘内容（日本語）",
       "suggestion": "改善提案（任意）"
     }
@@ -37,9 +37,9 @@ model: sonnet
 
 ## severity 定義
 
-- critical: マージ前に必ず修正すべき（エラーの握りつぶし、データ損失）
-- warning: 修正を強く推奨（エラーハンドリング不足）
-- nit: 軽微な改善提案（エラーメッセージの改善）
+- must: マージ前に必ず修正すべき（エラーの握りつぶし、データ損失）
+- imo: 修正を推奨するが判断は任せる（エラーハンドリング不足）
+- nits: 軽微な改善提案（エラーメッセージの改善）
 
 ## 注意事項
 

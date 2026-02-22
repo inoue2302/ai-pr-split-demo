@@ -28,7 +28,7 @@ model: sonnet
     {
       "file": "ファイルパス",
       "line": 行番号,
-      "severity": "critical | warning | nit",
+      "severity": "must | imo | nits",
       "message": "指摘内容（日本語）",
       "suggestion": "改善提案（任意）"
     }
@@ -38,9 +38,9 @@ model: sonnet
 
 ## severity 定義
 
-- critical: マージ前に必ず修正すべき（セキュリティ脆弱性）
-- warning: 修正を強く推奨（潜在的なセキュリティリスク）
-- nit: 軽微な改善提案（セキュリティ強化の提案）
+- must: マージ前に必ず修正すべき（セキュリティ脆弱性）
+- imo: 修正を推奨するが判断は任せる（潜在的なセキュリティリスク）
+- nits: 軽微な改善提案（セキュリティ強化の提案）
 
 ## 注意事項
 

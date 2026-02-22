@@ -45,7 +45,7 @@ Task ツールを使って6つのサブエージェントを並列で起動し�
 
 1. 各JSONの `findings` 配列を1つに統合
 2. **重複排除**: 同一ファイル・同一行（±3行以内）で類似の指摘内容があれば1つにまとめる
-3. **severity順に並び替え**: `critical` → `warning` → `nit`
+3. **severity順に並び替え**: `must` → `imo` → `nits`
 4. 指摘が0件の場合は「指摘事項はありません」と報告して終了
 
 ### 4. GitHub PRへのレビューコメント投稿
@@ -64,13 +64,13 @@ gh api repos/{owner}/{repo}/pulls/{number}/reviews \
   -X POST \
   --input - <<EOF
 {
-  "body": "## コードレビュー結果\n\n| severity | 件数 |\n|----------|------|\n| critical | X件 |\n| warning | Y件 |\n| nit | Z件 |",
+  "body": "## コードレビュー結果\n\n| severity | 件数 |\n|----------|------|\n| must | X件 |\n| imo | Y件 |\n| nits | Z件 |",
   "event": "COMMENT",
   "comments": [
     {
       "path": "src/example.ts",
       "position": 10,
-      "body": "**[critical/logic]** 指摘内容\n\n💡 改善提案"
+      "body": "**[must/logic]** 指摘内容\n\n💡 改善提案"
     }
   ]
 }
@@ -89,14 +89,14 @@ EOF
 
 - suggestion がない場合は💡行を省略
 - severity に応じたプレフィックス:
-  - critical: `🚨 **[critical/{category}]**`
-  - warning: `⚠️ **[warning/{category}]**`
-  - nit: `💬 **[nit/{category}]**`
+  - must: `🚨 **[must/{category}]**`
+  - imo: `⚠️ **[imo/{category}]**`
+  - nits: `💬 **[nits/{category}]**`
 
 #### event の選択
 
-- critical が1件以上: `REQUEST_CHANGES`
-- critical が0件: `COMMENT`
+- must が1件以上: `REQUEST_CHANGES`
+- must が0件: `COMMENT`
 
 ### 5. 結果サマリーの表示
 
@@ -109,15 +109,15 @@ PR: #{number} {title}
 
 | severity | 件数 |
 |----------|------|
-| critical | X件  |
-| warning  | Y件  |
-| nit      | Z件  |
+| must     | X件  |
+| imo      | Y件  |
+| nits     | Z件  |
 
-{critical がある場合}
-⚠️ critical な指摘があるため REQUEST_CHANGES としてレビューしました。
+{must がある場合}
+⚠️ must な指摘があるため REQUEST_CHANGES としてレビューしました。
 
-{critical がない場合}
-✅ critical な指摘はありません。COMMENT としてレビューしました。
+{must がない場合}
+✅ must な指摘はありません。COMMENT としてレビューしました。
 ```
 
 ## 注意事項
@@ -126,4 +126,4 @@ PR: #{number} {title}
 - サブエージェントの結果がJSONとしてパースできない場合はスキップしてください
 - diff が空の場合は「差分がありません」と報告して終了してください
 - 日本語でコメントしてください
-- 良い実装には褒めるコメントも残してください（severity は nit として扱う）
+- 良い実装には褒めるコメントも残してください（severity は nits として扱う）
