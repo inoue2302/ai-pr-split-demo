@@ -19,23 +19,17 @@ gh pr diff $ARGUMENTS
 
 ### 2. サブエージェントによるレビュー実行
 
-取得した diff を以下の6つのサブエージェントにそれぞれ渡して `claude -p` で並列実行してください。
-各サブエージェントのプロンプトは `.claude/commands/review-*.md` ファイルを使用します。
+取得した diff を以下の6つのサブエージェント（`.claude/agents/` に定義）にそれぞれ渡して並列実行してください。
 
-```bash
-DIFF=$(gh pr diff $ARGUMENTS)
+- **review-logic** — ロジックの正確性
+- **review-naming** — 命名規則・可読性
+- **review-performance** — パフォーマンス
+- **review-security** — セキュリティ
+- **review-errorhandling** — エラーハンドリング
+- **review-testing** — テストの網羅性
 
-# 6つのサブエージェントを並列実行
-echo "$DIFF" | claude -p "$(cat .claude/commands/review-logic.md | sed 's/\$ARGUMENTS/stdin/')" &
-echo "$DIFF" | claude -p "$(cat .claude/commands/review-naming.md | sed 's/\$ARGUMENTS/stdin/')" &
-echo "$DIFF" | claude -p "$(cat .claude/commands/review-performance.md | sed 's/\$ARGUMENTS/stdin/')" &
-echo "$DIFF" | claude -p "$(cat .claude/commands/review-security.md | sed 's/\$ARGUMENTS/stdin/')" &
-echo "$DIFF" | claude -p "$(cat .claude/commands/review-errorhandling.md | sed 's/\$ARGUMENTS/stdin/')" &
-echo "$DIFF" | claude -p "$(cat .claude/commands/review-testing.md | sed 's/\$ARGUMENTS/stdin/')" &
-wait
-```
-
-**重要**: 各サブエージェントには diff の内容を標準入力で渡し、プロンプト内の `$ARGUMENTS` 部分を diff テキストとして解釈するよう指示してください。
+各サブエージェントに diff 全文を渡し、JSON形式の結果を受け取ってください。
+Task ツールを使って6つのサブエージェントを並列で起動してください。
 
 ### 3. 結果の集約と整形
 
