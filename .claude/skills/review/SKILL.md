@@ -70,7 +70,7 @@ gh api repos/{owner}/{repo}/pulls/{number}/reviews \
     {
       "path": "src/example.ts",
       "position": 10,
-      "body": "> [!CAUTION]\n> **[must/logic]** 指摘内容\n>\n> 💡 改善提案"
+      "body": "![must](https://img.shields.io/badge/review-must-red.svg)\n\n**[must/logic]** 指摘内容\n\n💡 改善提案"
     }
   ]
 }
@@ -79,30 +79,33 @@ EOF
 
 #### コメントのフォーマット
 
-各インラインコメントは GitHub Alerts 記法を先頭に付け、以下の形式にしてください:
+各インラインコメントの先頭に shields.io のバッジを付け、以下の形式にしてください:
 
 **must の場合:**
 ```
-> [!CAUTION]
-> **[must/{category}]** {message}
->
-> 💡 {suggestion}
+![must](https://img.shields.io/badge/review-must-red.svg)
+
+**[must/{category}]** {message}
+
+💡 {suggestion}
 ```
 
 **imo の場合:**
 ```
-> [!WARNING]
-> **[imo/{category}]** {message}
->
-> 💡 {suggestion}
+![imo](https://img.shields.io/badge/review-imo-orange.svg)
+
+**[imo/{category}]** {message}
+
+💡 {suggestion}
 ```
 
 **nits の場合:**
 ```
-> [!NOTE]
-> **[nits/{category}]** {message}
->
-> 💡 {suggestion}
+![nits](https://img.shields.io/badge/review-nits-green.svg)
+
+**[nits/{category}]** {message}
+
+💡 {suggestion}
 ```
 
 - suggestion がない場合は💡行を省略
