@@ -1,8 +1,9 @@
 import { Hono } from 'hono'
 import { createTodoSchema } from '../application/dto/create-todo.dto.js'
 import { updateTodoSchema } from '../application/dto/update-todo.dto.js'
-import { createTodo, DuplicateTodoError } from '../application/create-todo.usecase.js'
-import { updateTodo, TodoNotFoundError, DuplicateTodoError as UpdateDuplicateTodoError } from '../application/update-todo.usecase.js'
+import { createTodo } from '../application/create-todo.usecase.js'
+import { updateTodo } from '../application/update-todo.usecase.js'
+import { DuplicateTodoError, TodoNotFoundError } from '../application/errors.js'
 
 const todoRoute = new Hono()
 
@@ -27,11 +28,17 @@ todoRoute.post('/', async (c) => {
 
 todoRoute.put('/:id', async (c) => {
   const id = Number(c.req.param('id'))
-  if (Number.isNaN(id)) {
-    return c.json({ message: 'IDは数値で指定してください' }, 400)
+  if (!Number.isInteger(id) || id <= 0) {
+    return c.json({ message: 'IDは正の整数で指定してください' }, 400)
   }
 
-  const body = await c.req.json()
+  let body: unknown
+  try {
+    body = await c.req.json()
+  } catch {
+    return c.json({ message: 'リクエストボディが不正なJSON形式です' }, 400)
+  }
+
   const parsed = updateTodoSchema.safeParse(body)
 
   if (!parsed.success) {
@@ -45,7 +52,7 @@ todoRoute.put('/:id', async (c) => {
     if (e instanceof TodoNotFoundError) {
       return c.json({ message: e.message }, 404)
     }
-    if (e instanceof UpdateDuplicateTodoError) {
+    if (e instanceof DuplicateTodoError) {
       return c.json({ message: e.message }, 400)
     }
     throw e

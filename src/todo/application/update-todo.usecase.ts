@@ -1,6 +1,7 @@
 import type { UpdateTodoInput } from './dto/update-todo.dto.js'
 import type { TodoResponse } from './dto/create-todo.dto.js'
 import { findTodoById, findTodoByTitle, updateTodo as updateTodoRepo } from '../infrastructure/todo.repository.js'
+import { DuplicateTodoError, TodoNotFoundError } from './errors.js'
 
 function normalizeTitle(title: string): string {
   return title
@@ -15,7 +16,7 @@ export async function updateTodo(id: number, input: UpdateTodoInput): Promise<To
     throw new TodoNotFoundError(id)
   }
 
-  const data: UpdateTodoInput = {}
+  const updatePayload: UpdateTodoInput = {}
 
   if (input.title !== undefined) {
     const title = normalizeTitle(input.title)
@@ -23,26 +24,14 @@ export async function updateTodo(id: number, input: UpdateTodoInput): Promise<To
     if (duplicate && duplicate.id !== id) {
       throw new DuplicateTodoError(title)
     }
-    data.title = title
+    updatePayload.title = title
   }
 
   if (input.completed !== undefined) {
-    data.completed = input.completed
+    updatePayload.completed = input.completed
   }
 
-  return await updateTodoRepo(id, data)
+  return await updateTodoRepo(id, updatePayload)
 }
 
-export class TodoNotFoundError extends Error {
-  constructor(id: number) {
-    super(`Todoが見つかりません: ${id}`)
-    this.name = 'TodoNotFoundError'
-  }
-}
-
-export class DuplicateTodoError extends Error {
-  constructor(title: string) {
-    super(`同じタイトルのTodoが既に存在します: ${title}`)
-    this.name = 'DuplicateTodoError'
-  }
-}
+export { DuplicateTodoError, TodoNotFoundError }

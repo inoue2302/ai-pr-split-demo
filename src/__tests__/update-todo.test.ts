@@ -51,6 +51,41 @@ describe('PUT /api/todos/:id', () => {
     expect(body.completed).toBe(true)
   })
 
+  it('completedをtrueからfalseに戻せる', async () => {
+    const todo = await createTodo('戻しテスト')
+
+    await app.request(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: true }),
+    })
+
+    const res = await app.request(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ completed: false }),
+    })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.completed).toBe(false)
+  })
+
+  it('titleとcompletedを同時に更新できる', async () => {
+    const todo = await createTodo('同時更新')
+
+    const res = await app.request(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: '更新後', completed: true }),
+    })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.title).toBe('更新後')
+    expect(body.completed).toBe(true)
+  })
+
   it('存在しないIDは404', async () => {
     const res = await app.request('/api/todos/9999', {
       method: 'PUT',
@@ -75,6 +110,34 @@ describe('PUT /api/todos/:id', () => {
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.title).toBe('トリム後')
+  })
+
+  it('全角スペースが半角に変換される', async () => {
+    const todo = await createTodo('変換元')
+
+    const res = await app.request(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'テスト\u3000Todo' }),
+    })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.title).toBe('テスト Todo')
+  })
+
+  it('連続スペースが1つに正規化される', async () => {
+    const todo = await createTodo('正規化元')
+
+    const res = await app.request(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'テスト   Todo' }),
+    })
+
+    expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.title).toBe('テスト Todo')
   })
 
   it('他のTodoと同じタイトルに更新すると重複エラー', async () => {
@@ -102,6 +165,8 @@ describe('PUT /api/todos/:id', () => {
     })
 
     expect(res.status).toBe(200)
+    const body = await res.json()
+    expect(body.title).toBe('同じタイトル')
   })
 
   it('不正なIDは400', async () => {
@@ -113,6 +178,75 @@ describe('PUT /api/todos/:id', () => {
 
     expect(res.status).toBe(400)
     const body = await res.json()
-    expect(body.message).toContain('IDは数値で指定してください')
+    expect(body.message).toContain('IDは正の整数で指定してください')
+  })
+
+  it('小数のIDは400', async () => {
+    const res = await app.request('/api/todos/1.5', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'テスト' }),
+    })
+
+    expect(res.status).toBe(400)
+  })
+
+  it('負数のIDは400', async () => {
+    const res = await app.request('/api/todos/-1', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: 'テスト' }),
+    })
+
+    expect(res.status).toBe(400)
+  })
+
+  it('空オブジェクトでの更新はバリデーションエラー', async () => {
+    const todo = await createTodo('空更新テスト')
+
+    const res = await app.request(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({}),
+    })
+
+    expect(res.status).toBe(400)
+  })
+
+  it('101文字超のタイトルはバリデーションエラー', async () => {
+    const todo = await createTodo('長文テスト')
+    const longTitle = 'あ'.repeat(101)
+
+    const res = await app.request(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: longTitle }),
+    })
+
+    expect(res.status).toBe(400)
+  })
+
+  it('不正なJSONは400', async () => {
+    const res = await app.request('/api/todos/1', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: 'invalid json',
+    })
+
+    expect(res.status).toBe(400)
+    const body = await res.json()
+    expect(body.message).toContain('不正なJSON形式')
+  })
+
+  it('空白のみのタイトルはバリデーションエラー', async () => {
+    const todo = await createTodo('空白テスト')
+
+    const res = await app.request(`/api/todos/${todo.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ title: '   ' }),
+    })
+
+    expect(res.status).toBe(400)
   })
 })

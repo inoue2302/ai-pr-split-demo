@@ -2,13 +2,7 @@ import { prisma } from '../../lib/prisma.js'
 import type { CreateTodoInput, TodoResponse } from '../application/dto/create-todo.dto.js'
 import type { UpdateTodoInput } from '../application/dto/update-todo.dto.js'
 
-export async function insertTodo(input: CreateTodoInput): Promise<TodoResponse> {
-  const todo = await prisma.todo.create({
-    data: {
-      title: input.title,
-    },
-  })
-
+function toTodoResponse(todo: { id: number; title: string; completed: boolean; createdAt: Date; updatedAt: Date }): TodoResponse {
   return {
     id: todo.id,
     title: todo.title,
@@ -16,6 +10,16 @@ export async function insertTodo(input: CreateTodoInput): Promise<TodoResponse> 
     createdAt: todo.createdAt.toISOString(),
     updatedAt: todo.updatedAt.toISOString(),
   }
+}
+
+export async function insertTodo(input: CreateTodoInput): Promise<TodoResponse> {
+  const todo = await prisma.todo.create({
+    data: {
+      title: input.title,
+    },
+  })
+
+  return toTodoResponse(todo)
 }
 
 export async function findTodoById(id: number): Promise<TodoResponse | null> {
@@ -25,13 +29,7 @@ export async function findTodoById(id: number): Promise<TodoResponse | null> {
 
   if (!todo) return null
 
-  return {
-    id: todo.id,
-    title: todo.title,
-    completed: todo.completed,
-    createdAt: todo.createdAt.toISOString(),
-    updatedAt: todo.updatedAt.toISOString(),
-  }
+  return toTodoResponse(todo)
 }
 
 export async function updateTodo(id: number, input: UpdateTodoInput): Promise<TodoResponse> {
@@ -40,13 +38,7 @@ export async function updateTodo(id: number, input: UpdateTodoInput): Promise<To
     data: input,
   })
 
-  return {
-    id: todo.id,
-    title: todo.title,
-    completed: todo.completed,
-    createdAt: todo.createdAt.toISOString(),
-    updatedAt: todo.updatedAt.toISOString(),
-  }
+  return toTodoResponse(todo)
 }
 
 export async function findTodoByTitle(title: string): Promise<TodoResponse | null> {
@@ -56,11 +48,5 @@ export async function findTodoByTitle(title: string): Promise<TodoResponse | nul
 
   if (!todo) return null
 
-  return {
-    id: todo.id,
-    title: todo.title,
-    completed: todo.completed,
-    createdAt: todo.createdAt.toISOString(),
-    updatedAt: todo.updatedAt.toISOString(),
-  }
+  return toTodoResponse(todo)
 }
