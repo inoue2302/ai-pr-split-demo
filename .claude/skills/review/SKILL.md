@@ -1,3 +1,11 @@
+---
+name: review
+description: マルチエージェント構成でPRのコードレビューを実施する
+argument-hint: [PR-number or URL]
+disable-model-invocation: true
+allowed-tools: Read, Grep, Glob, Bash(gh *), Bash(git *)
+---
+
 # /review コマンド
 
 指定されたPRに対して、マルチエージェント構成でコードレビューを実施します。
