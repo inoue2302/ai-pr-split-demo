@@ -1,5 +1,6 @@
 import type { CreateTodoInput, TodoResponse } from './dto/create-todo.dto.js'
 import { insertTodo, findTodoByTitle } from '../infrastructure/todo.repository.js'
+import { DuplicateTodoError } from './errors.js'
 
 function normalizeTitle(title: string): string {
   return title
@@ -19,9 +20,4 @@ export async function createTodo(input: CreateTodoInput): Promise<TodoResponse> 
   return await insertTodo({ title })
 }
 
-export class DuplicateTodoError extends Error {
-  constructor(title: string) {
-    super(`同じタイトルのTodoが既に存在します: ${title}`)
-    this.name = 'DuplicateTodoError'
-  }
-}
+export { DuplicateTodoError }
