@@ -1,11 +1,44 @@
 import { Hono } from 'hono'
 import { createTodoSchema } from '../application/dto/create-todo.dto.js'
 import { updateTodoSchema } from '../application/dto/update-todo.dto.js'
+import { listTodosQuerySchema } from '../application/dto/list-todos-query.dto.js'
 import { createTodo } from '../application/create-todo.usecase.js'
 import { updateTodo } from '../application/update-todo.usecase.js'
 import { DuplicateTodoError, TodoNotFoundError } from '../application/errors.js'
+import type { TodoResponse } from '../application/dto/create-todo.dto.js'
 
 const todoRoute = new Hono()
+
+todoRoute.get('/', async (c) => {
+  const parsed = listTodosQuerySchema.safeParse(c.req.query())
+
+  if (!parsed.success) {
+    return c.json({ errors: parsed.error.flatten().fieldErrors }, 400)
+  }
+
+  // TODO: Replace with usecase
+  const mock: TodoResponse[] = [
+    { id: 1, title: 'サンプルTodo', completed: false, createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z' },
+  ]
+  const filtered = parsed.data.completed !== undefined
+    ? mock.filter((t) => t.completed === parsed.data.completed)
+    : mock
+  return c.json(filtered)
+})
+
+todoRoute.get('/:id', async (c) => {
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id) || id <= 0) {
+    return c.json({ message: 'IDは正の整数で指定してください' }, 400)
+  }
+
+  // TODO: Replace with usecase
+  const mock: TodoResponse = { id, title: 'サンプルTodo', completed: false, createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z' }
+  if (id === 999) {
+    return c.json({ message: 'Todoが見つかりません: ' + id }, 404)
+  }
+  return c.json(mock)
+})
 
 todoRoute.post('/', async (c) => {
   const body = await c.req.json()
