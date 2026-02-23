@@ -17,27 +17,29 @@ todoRoute.get('/', async (c) => {
   }
 
   // TODO: Replace with usecase
-  const mock: TodoResponse[] = [
+  const mockTodos: TodoResponse[] = [
     { id: 1, title: 'サンプルTodo', completed: false, createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z' },
   ]
   const filtered = parsed.data.completed !== undefined
-    ? mock.filter((t) => t.completed === parsed.data.completed)
-    : mock
+    ? mockTodos.filter((t) => t.completed === parsed.data.completed)
+    : mockTodos
   return c.json(filtered)
 })
 
 todoRoute.get('/:id', async (c) => {
-  const id = Number(c.req.param('id'))
-  if (!Number.isInteger(id) || id <= 0) {
+  const idStr = c.req.param('id')
+  const id = parseInt(idStr, 10)
+  if (isNaN(id) || id <= 0 || String(id) !== idStr) {
     return c.json({ message: 'IDは正の整数で指定してください' }, 400)
   }
 
   // TODO: Replace with usecase
-  const mock: TodoResponse = { id, title: 'サンプルTodo', completed: false, createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z' }
-  if (id === 999) {
-    return c.json({ message: 'Todoが見つかりません: ' + id }, 404)
+  const MOCK_NOT_FOUND_ID = 999
+  if (id === MOCK_NOT_FOUND_ID) {
+    return c.json({ message: `Todoが見つかりません: ${id}` }, 404)
   }
-  return c.json(mock)
+  const mockTodo: TodoResponse = { id, title: 'サンプルTodo', completed: false, createdAt: '2025-01-01T00:00:00.000Z', updatedAt: '2025-01-01T00:00:00.000Z' }
+  return c.json(mockTodo)
 })
 
 todoRoute.post('/', async (c) => {
