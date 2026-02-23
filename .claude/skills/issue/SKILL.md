@@ -120,11 +120,17 @@ gh issue create \
 
 ### 6. sub-issue の紐付け
 
-GitHub sub-issues 機能で親Issue に紐付ける:
+GitHub sub-issues 機能で親Issue に紐付ける。
+まず `gh issue edit --add-sub-issue` を試行し、フラグが存在しない場合は親Issue本文内の sub-issues リストにリンクを追記する形で代替する。
 
 ```bash
+# gh CLI が --add-sub-issue をサポートしている場合
 gh issue edit {親Issue番号} --repo inoue2302/ai-pr-split-demo --add-sub-issue {sub-issue番号}
+
+# サポートしていない場合は親Issue本文に sub-issue リンクを含めているため紐付けは省略可
 ```
+
+紐付けが失敗した場合は警告としてユーザーに通知し、処理は継続する。
 
 ### 7. 結果サマリーの表示
 

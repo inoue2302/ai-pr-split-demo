@@ -29,8 +29,9 @@ gh issue view $ARGUMENTS --repo inoue2302/ai-pr-split-demo --json number,title,b
 gh issue view $ARGUMENTS --repo inoue2302/ai-pr-split-demo --json subIssues
 ```
 
-sub-issues を番号順（依存順）にソートする。
-タイトルに含まれる `[1/N]`, `[2/N]` の番号で実装順序を判定する。
+タイトルに含まれる `[X/N]` の `X` を正規表現 `/\[(\d+)\//` で抽出し、数値昇順でソートする。
+パースできない場合は Issue 番号順にフォールバックする。
+sub-issues が 0 件の場合は「親Issue に sub-issues が存在しません」と通知して処理を終了する。
 
 ### 3. 実装計画をユーザーに提示
 
@@ -67,6 +68,7 @@ git checkout -b feature/{sub-issue番号}-{slug} feature/{前のsub-issue番号}
 ```
 
 `{slug}` は sub-issue タイトルから短い英語のスラッグを生成する（例: `endpoint-dto`, `repository`, `usecase`）。
+slug は英小文字・数字・ハイフンのみ許可し、その他の文字はハイフンに置換する。連続するハイフンは1つにまとめる。
 
 #### 4b. 実装
 
@@ -119,7 +121,7 @@ PR 本文には以下を含める:
 #{親Issue番号} {親Issueタイトル}
 
 ## 関連PR
-- 前: #{前のPR番号}（このPRのbase）
+- 前: なし（base: main）← 1番目の場合 / #{前のPR番号}（このPRのbase）← 2番目以降
 - 次: 未作成
 
 ## 変更内容
@@ -130,11 +132,10 @@ PR 本文には以下を含める:
 Closes #{sub-issue番号}
 ```
 
-#### 4f. sub-issue のクローズ
+#### 4f. sub-issue のクローズについて
 
-```bash
-gh issue close {sub-issue番号} --repo inoue2302/ai-pr-split-demo
-```
+PR 本文に `Closes #{sub-issue番号}` を含めているため、PR がマージされた時点で GitHub が自動的に sub-issue をクローズする。
+手動で `gh issue close` を実行する必要はない。
 
 ### 5. 結果サマリーの表示
 
@@ -176,5 +177,5 @@ main
 - 型チェックが通らない場合は修正してから次に進む
 - コミットメッセージは変更内容を端的に表す
 - PR の数珠繋ぎ構造（base ブランチ）を正しく設定する
-- sub-issue のクローズを忘れない
+- 各ステップでコマンドが失敗した場合は処理を中断し、ユーザーにエラー内容を報告して続行可否を確認する
 - 日本語でPR本文を記載する
