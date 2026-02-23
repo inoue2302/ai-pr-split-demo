@@ -10,6 +10,14 @@ import type { TodoResponse } from '../application/dto/create-todo.dto.js'
 
 const todoRoute = new Hono()
 
+function parsePositiveIntId(idStr: string): number | null {
+  const id = parseInt(idStr, 10)
+  if (isNaN(id) || id <= 0 || String(id) !== idStr) {
+    return null
+  }
+  return id
+}
+
 todoRoute.get('/', async (c) => {
   const parsed = listTodosQuerySchema.safeParse(c.req.query())
 
@@ -28,9 +36,8 @@ todoRoute.get('/', async (c) => {
 })
 
 todoRoute.get('/:id', async (c) => {
-  const idStr = c.req.param('id')
-  const id = parseInt(idStr, 10)
-  if (isNaN(id) || id <= 0 || String(id) !== idStr) {
+  const id = parsePositiveIntId(c.req.param('id'))
+  if (id === null) {
     return c.json({ message: 'IDは正の整数で指定してください' }, 400)
   }
 
@@ -63,8 +70,8 @@ todoRoute.post('/', async (c) => {
 })
 
 todoRoute.put('/:id', async (c) => {
-  const id = Number(c.req.param('id'))
-  if (!Number.isInteger(id) || id <= 0) {
+  const id = parsePositiveIntId(c.req.param('id'))
+  if (id === null) {
     return c.json({ message: 'IDは正の整数で指定してください' }, 400)
   }
 
@@ -96,9 +103,8 @@ todoRoute.put('/:id', async (c) => {
 })
 
 todoRoute.delete('/:id', async (c) => {
-  const idStr = c.req.param('id')
-  const id = parseInt(idStr, 10)
-  if (isNaN(id) || id <= 0 || String(id) !== idStr) {
+  const id = parsePositiveIntId(c.req.param('id'))
+  if (id === null) {
     return c.json({ message: 'IDは正の整数で指定してください' }, 400)
   }
 
