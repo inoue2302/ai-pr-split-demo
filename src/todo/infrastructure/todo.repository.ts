@@ -41,6 +41,15 @@ export async function updateTodo(id: number, input: UpdateTodoInput): Promise<To
   return toTodoResponse(todo)
 }
 
+export async function findAllTodos(filter?: { completed?: boolean }): Promise<TodoResponse[]> {
+  const todos = await prisma.todo.findMany({
+    where: filter?.completed !== undefined ? { completed: filter.completed } : undefined,
+    orderBy: { createdAt: 'desc' },
+  })
+
+  return todos.map(toTodoResponse)
+}
+
 export async function findTodoByTitle(title: string): Promise<TodoResponse | null> {
   const todo = await prisma.todo.findFirst({
     where: { title },
