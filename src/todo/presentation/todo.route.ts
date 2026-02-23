@@ -4,6 +4,7 @@ import { updateTodoSchema } from '../application/dto/update-todo.dto.js'
 import { listTodosQuerySchema } from '../application/dto/list-todos-query.dto.js'
 import { createTodo } from '../application/create-todo.usecase.js'
 import { updateTodo } from '../application/update-todo.usecase.js'
+import { deleteTodo } from '../application/delete-todo.usecase.js'
 import { DuplicateTodoError, TodoNotFoundError } from '../application/errors.js'
 import type { TodoResponse } from '../application/dto/create-todo.dto.js'
 
@@ -107,12 +108,15 @@ todoRoute.delete('/:id', async (c) => {
     return c.json({ message: 'IDは正の整数で指定してください' }, 400)
   }
 
-  // TODO: Replace with usecase
-  const MOCK_NOT_FOUND_ID = 999
-  if (id === MOCK_NOT_FOUND_ID) {
-    return c.json({ message: `Todoが見つかりません: ${id}` }, 404)
+  try {
+    await deleteTodo(id)
+    return c.body(null, 204)
+  } catch (e) {
+    if (e instanceof TodoNotFoundError) {
+      return c.json({ message: e.message }, 404)
+    }
+    throw e
   }
-  return c.body(null, 204)
 })
 
 export { todoRoute }
