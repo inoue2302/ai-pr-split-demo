@@ -22,8 +22,9 @@ todoRoute.get('/', async (c) => {
 })
 
 todoRoute.get('/:id', async (c) => {
-  const id = Number(c.req.param('id'))
-  if (!Number.isInteger(id) || id <= 0) {
+  const idStr = c.req.param('id')
+  const id = parseInt(idStr, 10)
+  if (isNaN(id) || id <= 0 || String(id) !== idStr) {
     return c.json({ message: 'IDは正の整数で指定してください' }, 400)
   }
 
