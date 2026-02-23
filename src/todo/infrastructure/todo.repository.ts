@@ -1,6 +1,8 @@
+import { Prisma } from '../../generated/prisma/client.js'
 import { prisma } from '../../lib/prisma.js'
 import type { CreateTodoInput, TodoResponse } from '../application/dto/create-todo.dto.js'
 import type { UpdateTodoInput } from '../application/dto/update-todo.dto.js'
+import { TodoNotFoundError } from '../application/errors.js'
 
 function toTodoResponse(todo: { id: number; title: string; completed: boolean; createdAt: Date; updatedAt: Date }): TodoResponse {
   return {
@@ -42,9 +44,16 @@ export async function updateTodo(id: number, input: UpdateTodoInput): Promise<To
 }
 
 export async function deleteTodo(id: number): Promise<void> {
-  await prisma.todo.delete({
-    where: { id },
-  })
+  try {
+    await prisma.todo.delete({
+      where: { id },
+    })
+  } catch (e) {
+    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2025') {
+      throw new TodoNotFoundError(id)
+    }
+    throw e
+  }
 }
 
 export async function findTodoByTitle(title: string): Promise<TodoResponse | null> {
