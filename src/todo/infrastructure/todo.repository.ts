@@ -41,6 +41,12 @@ export async function updateTodo(id: number, input: UpdateTodoInput): Promise<To
   return toTodoResponse(todo)
 }
 
+export async function deleteTodo(id: number): Promise<void> {
+  await prisma.todo.delete({
+    where: { id },
+  })
+}
+
 export async function findTodoByTitle(title: string): Promise<TodoResponse | null> {
   const todo = await prisma.todo.findFirst({
     where: { title },
